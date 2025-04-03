@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TodoApp</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+        .container {
+            background: white;
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #fff;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .delete-btn {
+            background: #ff4d4d;
+            border: none;
+            padding: 5px 10px;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .delete-btn:hover {
+            background: #ff3333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Todo App</h2>
+        <input type="text" id="todoInput" placeholder="Enter a task" required>
+        <button onclick="addTodo()">Add Task</button>
+        <ul id="todoList"></ul>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/todos';
+
+        async function fetchTodos() {
+            const response = await fetch(API_URL);
+            const todos = await response.json();
+            const list = document.getElementById('todoList');
+            list.innerHTML = '';
+            todos.forEach(todo => {
+                const li = document.createElement('li');
+                li.innerHTML = `${todo.text} 
+                    <button class="delete-btn" onclick="deleteTodo('${todo._id}')">Delete</button>
+                    <button onclick="updateTodo('${todo._id}')">Update</button>`;
+                list.appendChild(li);
+            });
+        }
+
+        async function addTodo() {
+            const input = document.getElementById('todoInput');
+            const task = input.value.trim();
+            if (task === '') return;
+            
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: task })
+            });
+            
+            input.value = '';
+            fetchTodos();
+        }
+        
+        async function deleteTodo(id) {
+            await fetch(`${API_URL}/${id}`, {
+                method: 'DELETE'
+            });
+            fetchTodos();
+        }
+
+        async function updateTodo(id) {
+            const newText = prompt('Enter new task text:');
+            if (!newText) return;
+            
+            await fetch(`${API_URL}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: newText })
+            });
+            fetchTodos();
+        }
+
+        fetchTodos();
+    </script>
+</body>
+</html>

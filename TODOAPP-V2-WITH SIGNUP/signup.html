@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup </title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+        .container {
+            background: white;
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff4d6d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #ff3355;
+        }
+        .message {
+            color: red;
+            margin-top: 10px;
+        }
+        .toggle-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            border-radius: 25px;
+            overflow: hidden;
+            background: #ddd;
+            width: 300px;
+        }
+        .toggle-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            color: #555;
+        }
+        .toggle-buttons button.active {
+            background: #ff4d6d;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="toggle-buttons">
+        <button id="signupBtn" onclick="showSignup()">Signup</button>
+        <button id="loginBtn" onclick="showLogin()">Login</button>
+    </div>
+
+    <div class="container" id="signupContainer">
+        <h2>Signup</h2>
+        <input type="text" id="signupUsername" placeholder="Username" required>
+        <input type="email" id="signupEmail" placeholder="Email" required>
+        <input type="password" id="signupPassword" placeholder="Password" required>
+        <button onclick="signup()">Signup</button>
+        <div class="message" id="signupMessage"></div>
+    </div>
+
+    <div class="container" id="loginContainer">
+        <h2>Login</h2>
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button onclick="login()">Login</button>
+        <div class="message" id="loginMessage"></div>
+    </div>
+    
+    <script>
+        function showSignup() {
+            document.getElementById('signupContainer').classList.add('active');
+            document.getElementById('loginContainer').classList.remove('active');
+            document.getElementById('signupBtn').classList.add('active');
+            document.getElementById('loginBtn').classList.remove('active');
+        }
+
+        function showLogin() {
+            document.getElementById('loginContainer').classList.add('active');
+            document.getElementById('signupContainer').classList.remove('active');
+            document.getElementById('loginBtn').classList.add('active');
+            document.getElementById('signupBtn').classList.remove('active');
+        }
+
+        async function signup() {
+            const username = document.getElementById('signupUsername').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+    
+            const response = await fetch('http://localhost:3000/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password })
+            });
+    
+            const data = await response.json();
+            document.getElementById('signupMessage').innerText = data.message || data.error;
+        }
+    
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+    
+            const response = await fetch('http://localhost:3000/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+    
+            const data = await response.json();
+            document.getElementById('loginMessage').innerText = data.message || data.error;
+    
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+                window.location.href = 'todoapp.html';
+            }
+        }
+
+        showSignup();
+    </script>
+</body>
+</html>
